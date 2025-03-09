@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LRU Cache</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="container">
+        
+        <div class="box">
+            <h2>LRU Cache Simulator</h2>
+            <div class="input-box">
+                <label>Key:</label>
+                <input type="text" id="key">
+            </div>
+            <div class="input-box">
+                <label>Value:</label>
+                <input type="text" id="value">
+            </div>
+            <div class="input-box">
+            <button onclick="putItem()">Put</button>
+            <button onclick="getItem()">Get</button>
+            </div>
+        </div>
+
+        <div class="box">
+            <h2>Cache Contents</h2>
+            <button onclick="displayCache()">Display Cache</button>
+            <div id="cache-display">Cache: []</div>
+        </div>
+    </div>
+
+    <script>
+        async function putItem() {
+            const key = document.getElementById('key').value;
+            const value = document.getElementById('value').value;
+            if (!key || !value) {
+                alert('Both key and value are required!');
+                return;
+            }
+            const response = await fetch('/put', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key, value })
+            });
+            displayCache();
+        }
+
+        async function getItem() {
+            const key = document.getElementById('key').value;
+            if (!key) {
+                alert('Enter a key to get value!');
+                return;
+            }
+            const response = await fetch(`/get/${key}`);
+            const data = await response.json();
+            alert(data.message + (data.value !== -1 ? `: ${data.value}` : ''));
+            displayCache();
+        }
+
+        async function displayCache() {
+            const response = await fetch('/display');
+            const data = await response.json();
+            document.getElementById('cache-display').innerText = 'Cache: ' + JSON.stringify(data.cache);
+        }
+    </script>
+
+</body>
+</html>
